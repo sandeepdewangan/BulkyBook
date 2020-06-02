@@ -1,5 +1,5 @@
 # ASP.NET Core 
-
+Project of Udemy Course [Complete guide to ASP.NET Core MVC (v3.1)](https://www.udemy.com/course/complete-aspnet-core-21-course)
 ## Install Packages
 
 1. Markdown Editor - README.md file editor.
@@ -46,4 +46,51 @@ services.AddControllersWithViews().AddRazorRuntimeCompilation();
 |------ Views
 |------ Controller
 |--- Admin (MVC)
+```
+
+#### Adding Customer Area
+
+1. Add area, named Customer
+2. Create folder structure as below
+
+```bash
+|-Areas
+|--- Customer
+|------ Views
+|--------- Home
+|------------ index.cshtml
+|------ Controller
+|--------- HomeController.cs
+```
+
+3. Explicitly Mark Area with annotations
+
+```c#
+[Area("Customer")]
+    public class HomeController : Controller
+    {
+        public IActionResult Index()
+        {
+            return View();
+        }
+```
+
+4. Temporary change startup.cs
+
+```c#
+app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
+            });
+```
+
+5. Copy _ViewStart.cshtml and _ViewImports.cshtml to the Views folder of Customer area and add reference to the _Layout file.
+
+```c#
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
 ```
