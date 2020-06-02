@@ -1,15 +1,39 @@
 # ASP.NET Core 
 Project of Udemy Course [Complete guide to ASP.NET Core MVC (v3.1)](https://www.udemy.com/course/complete-aspnet-core-21-course)
+
+## Install Extension
+1. Markdown Editor - README.md file editor.
+
+## Install 3rd Party Tools
+
+1. [jQuery Date Picker](https://jqueryui.com/datepicker/)
+2. [Data Tables](https://datatables.net/)
+3. [Sweet Alerts](https://sweetalert.js.org/)
+4. [Toastr for toast message](https://github.com/CodeSeven/toastr)
+5. [Font Awesome Icons](https://fontawesome.com/)
+
+> All CSS and JS File Combined > Paste it to _Layout.cshtml file
+```html
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+
+<script src="https://kit.fontawesome.com/363284e9b5.js" crossorigin="anonymous"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+```
+
+
 ## Install Packages
 
-1. Markdown Editor - README.md file editor.
-2. Runtime Compilation
+1. Runtime Compilation
 
 Add in Startup.cs at ConfigureServices method
 ```c#
 services.AddControllersWithViews().AddRazorRuntimeCompilation();
 ```
-
 
 
 ## Starting Project
@@ -94,3 +118,27 @@ app.UseEndpoints(endpoints =>
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 ```
+
+## Bootstrap
+
+1. Go to https://bootswatch.com/
+2. Select one of the theme and copy the css.
+3. Paste the css into wwwroot of project.
+4. Goto the _Layout page and change the css file to use bootstrap.css
+5. Make some changes to code in HTML to use the downloaded theme.
+
+
+## Database Setup
+
+1. Under appsettings.json, find connection string
+
+```c#
+"ConnectionStrings": {
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=BulkyBook;Trusted_Connection=True;MultipleActiveResultSets=true"
+  },
+```
+
+> Note: Run migration commands from BulkyBook.DataAccess
+
+2. Add migration - $ add-migration NameMigration
+3. Update database - $ update-database
