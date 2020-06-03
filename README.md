@@ -142,3 +142,32 @@ app.UseEndpoints(endpoints =>
 
 2. Add migration - $ add-migration NameMigration
 3. Update database - $ update-database
+4. Create a Model class
+
+```c#
+public class Category
+    {
+        [Key]
+        public int Id { get; set; }
+        [Required]
+        [MaxLength(50)]
+        [Display(Name="Category Name")]
+        public string Name { get; set; }
+    }
+```
+
+5. Add Category to DbContext
+
+```c#
+public class ApplicationDbContext : IdentityDbContext
+    {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
+        {
+        }
+
+        public DbSet<Category> Categories { get; set; }
+    }
+```
+
+6. Now migrate and update database
