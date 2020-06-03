@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using BulkyBook.DataAccess.Data;
+using BulkyBook.DataAccess.Repository;
+using BulkyBook.DataAccess.Repository.IRepository;
+using BulkyBook.Models;
 using BulkyBook.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -12,16 +16,19 @@ namespace BulkyBook.Areas.Customer
     [Area("Customer")]
     public class HomeController : Controller
     {
+        private readonly ICategoryRepository repoCategory;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ICategoryRepository repoCategory)
         {
             _logger = logger;
+            this.repoCategory = repoCategory;
         }
 
         public IActionResult Index()
         {
-            return View();
+            var categories = repoCategory.GetAll();
+            return View(categories);
         }
 
         public IActionResult Privacy()

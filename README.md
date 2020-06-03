@@ -171,3 +171,70 @@ public class ApplicationDbContext : IdentityDbContext
 ```
 
 6. Now migrate and update database
+
+## Repository Pattern
+
+Under DataAccess project make directory structure as below.
+
+```bash
+|-BulkyBook.DataAccess
+|--- Repository
+|------ CategoryRepository.cs
+|------ IRepository
+|--------- ICategoryRepository.cs
+```
+
+```c#
+namespace BulkyBook.DataAccess.Repository.IRepository
+{
+    public interface ICategoryRepository
+    {
+        IEnumerable<Category> GetAll();
+    }
+}
+```
+
+```c#
+public class CategoryRepository : ICategoryRepository
+    {
+        private readonly ApplicationDbContext _db;
+
+        public CategoryRepository(ApplicationDbContext db)
+        {
+            _db = db;
+        }
+
+        public IEnumerable<Category> GetAll()
+        {
+            var categories = _db.Categories.ToList();
+            return categories;
+        }
+    }
+```
+
+> Add code snnipets to startup.cs
+
+```c#
+services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>(); // <---- THIS
+```
+
+> Usage of Repository (Dependency Injection)
+
+```c#
+[Area("Customer")]
+public class HomeController : Controller
+{
+    private readonly ICategoryRepository repoCategory
+    public HomeController(ICategoryRepository repoCategory)
+    {
+        this.repoCategory = repoCategory;
+    }
+    public IActionResult Index()
+    {
+        var categories = repoCategory.GetAll();
+        return View(categories);
+    }
+}
+```
