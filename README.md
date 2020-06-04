@@ -238,3 +238,43 @@ public class HomeController : Controller
     }
 }
 ```
+
+
+## Comments
+
+> Inside C# File
+
+```c#
+#region API CALLS
+#endregion
+```
+
+> Inside cshtml
+
+```c#
+@* Comment Goes HERE *@
+```
+
+## Database CRUD
+
+File Structure
+
+```bash
+|-Areas
+|--- Admin
+|------ Controllers
+|--------- CategoryController
+|------ Views
+|--------- Category
+|------------ Index.cshtml.cs
+```
+
+```bash
+|-wwwroot
+|--- js
+|----- category.js
+```
+
+views/shared/cat (2 page)
+js/categort.js
+CRUD database
