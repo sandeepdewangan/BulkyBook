@@ -275,6 +275,4 @@ File Structure
 |----- category.js
 ```
 
-views/shared/cat (2 page)
-js/categort.js
-CRUD database
+**See Commit: Category CRUD**

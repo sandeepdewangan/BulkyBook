@@ -35,6 +35,7 @@ namespace BulkyBook
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<ICoverTypeRepository, CoverTypeRepository>();
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddRazorPages();
         }
