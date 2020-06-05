@@ -16,19 +16,19 @@ namespace BulkyBook.Areas.Customer
     [Area("Customer")]
     public class HomeController : Controller
     {
-        private readonly ICategoryRepository repoCategory;
+        private readonly IProductRepository _productRepository;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger, ICategoryRepository repoCategory)
+        public HomeController(ILogger<HomeController> logger, IProductRepository repoProduct)
         {
             _logger = logger;
-            this.repoCategory = repoCategory;
+            _productRepository = repoProduct;
         }
 
         public IActionResult Index()
         {
-            var categories = repoCategory.GetAll();
-            return View(categories);
+            IEnumerable<BulkyBook.Models.Product> products = _productRepository.GetAllWithAllFKRef();
+            return View(products);
         }
 
         public IActionResult Privacy()

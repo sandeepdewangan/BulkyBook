@@ -36,6 +36,7 @@ namespace BulkyBook
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ICoverTypeRepository, CoverTypeRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddRazorPages();
         }
