@@ -276,3 +276,155 @@ File Structure
 ```
 
 **See Commit: Category CRUD**
+
+## User Registration
+
+1. Create a class which will override the existing model which was created by VS throught Identity.
+
+```c#
+using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace BulkyBook.Models
+{
+    public class ApplicationUser : IdentityUser
+    {
+        [Required]
+        public string Name { get; set; }
+        public string StreetAddress { get; set; }
+        public string City { get; set; }
+        public string State { get; set; }
+        public string PostalCode { get; set; }
+        public int? CompanyId { get; set; }
+        [NotMapped] // Not Added to the database
+        public string Role { get; set; } 
+
+        [ForeignKey("CompanyId")]
+        public Company Company { get; set; }
+    }
+}
+```
+
+2. Add class to Application DB Context
+
+```c#
+public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+```
+
+3. Migrate and Update database.
+
+#### Adding these fields to Register Page
+
+1. Right click on project and select new scafolded item.
+2. Select identity > add.
+3. Select layout.
+3. Select all pages and select applciation db context.
+5. Under Register.cshtml.cs > on InputModel class paste our custom model.
+
+```c#
+public class InputModel
+ {
+  ......
+
+     [Required]
+     public string Name { get; set; }
+     public string StreetAddress { get; set; }
+     public string City { get; set; }
+     public string State { get; set; }
+     public string PostalCode { get; set; }
+     public int? CompanyId { get; set; }
+     public string Role { get; set; }
+ }
+```
+
+6. Add to Register.cshtml
+
+```html
+<div class="form-group">
+   <label asp-for="Input.Name"></label>
+   <input asp-for="Input.Name" class="form-control" />
+   <span asp-validation-for="Input.Name" class="text-danger"></span>
+</div>
+```
+
+7. Change method OnPostAsync()
+
+**Remove**
+```c#
+var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
+```
+**Add**
+```c#
+public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+{
+  if (ModelState.IsValid)
+  {
+      //var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
+      var user = new ApplicationUser
+      {
+          UserName = Input.Name,
+          Email = Input.Email,
+          CompanyId = Input.CompanyId,
+          StreetAddress = Input.StreetAddress,
+          City = Input.City,
+          State = Input.State,
+          PostalCode = Input.PostalCode,
+          Name = Input.Name,
+          Role = Input.Role
+      };
+}
+```
+> Comment the email confirmation mail.
+
+8. Add role
+
+```c#
+public class RegisterModel : PageModel
+{
+ private readonly RoleManager<IdentityRole> _roleManager;
+}
+```
+
+.... Incomplete -- SEE Videos
+
+
+## Authorization
+
+1. Add at startup page under Configure method.
+
+```c#
+app.UseAuthentication();
+app.UseAuthorization();
+```
+
+2. Add annotation to controller
+```c#
+[Authorize(Roles = "Admin")] //<-- Use it from SD class (static)
+
+or 
+
+[Authorize(Roles = "Admin, Employee")]
+```
+
+3. Add for page access denied
+```c#
+public void ConfigureServices(IServiceCollection services)
+        {
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = $"/Identity/Account/Login";
+                options.LogoutPath = $"/Identity/Account/Logout";
+                options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+            });
+        }
+
+```
+
+## Display link based on Roles
+
+```c#
+@if(User.IsInRole("Admin")){
+    //HTMl Links
+}
