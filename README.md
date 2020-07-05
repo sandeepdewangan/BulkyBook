@@ -322,6 +322,7 @@ public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 3. Select all pages and select applciation db context.
 5. Under Register.cshtml.cs > on InputModel class paste our custom model.
 
+> Input Model is used for Registration.
 ```c#
 public class InputModel
  {
@@ -335,10 +336,12 @@ public class InputModel
      public string PostalCode { get; set; }
      public int? CompanyId { get; set; }
      public string Role { get; set; }
+
+// Foreign key mappings are not needed here because none of these properties will be mapped to db.
  }
 ```
 
-6. Add to Register.cshtml
+6. Add to Register.cshtml (add all name, streetaddress, city etc)
 
 ```html
 <div class="form-group">
@@ -377,17 +380,179 @@ public async Task<IActionResult> OnPostAsync(string returnUrl = null)
 ```
 > Comment the email confirmation mail.
 
-8. Add role
+```c#
+ //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+ //code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+ //var callbackUrl = Url.Page(
+ //    "/Account/ConfirmEmail",
+ //    pageHandler: null,
+ //    values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
+ //    protocol: Request.Scheme);
+
+ //await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+ //    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+```
+8. Inject Role Manager and Our Database Accessing Class (eg, Unit of Work)
 
 ```c#
 public class RegisterModel : PageModel
 {
- private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
+    public RegisterModel(RoleManager<IdentityRole> roleManager)
+    {
+        _roleManager = roleManager;
+    }
+}
+
+```
+
+9. Create Role Dynamically and Assigning User Some Role
+```c#
+Register.cs
+
+if (result.Succeeded)
+{
+    _logger.LogInformation("User created a new account with password.");
+
+    // Role Creation Dynamically
+
+    if(!await _roleManager.RoleExistsAsync(SD.Role_Admin))
+    {
+        await _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin));
+    }
+    if (!await _roleManager.RoleExistsAsync(SD.Role_Employee))
+    {
+        await _roleManager.CreateAsync(new IdentityRole(SD.Role_Employee));
+    }
+    if (!await _roleManager.RoleExistsAsync(SD.Role_User))
+    {
+        await _roleManager.CreateAsync(new IdentityRole(SD.Role_User));
+    }
+
+    // Assigning User to Some Role
+    await _userManager.AddToRoleAsync(user, SD.Role_Admin);
 }
 ```
 
-.... Incomplete -- SEE Videos
+10. Change Startup.cs file to configure Roles
 
+> The AddDefaultIdentity doesnot support Roles.
+> We have commented out the code for sending email, in that we have code for generating token. To save our application from crashing, add DefaultTokenProviders at startup.
+```c#
+services.AddIdentity<IdentityUser, IdentityRole>().AddDefaultTokenProviders().AddEntityFrameworkStores<ApplicationDbContext>();
+```
+
+11. Error for Email Providers - Microsoft.AspNetCore.Identity.UI.Services.IEmailSender
+
+**Step 01**: Add a class to Utility Project
+```c#
+namespace BulkyBook.Utility
+{
+    public class EmailSender : IEmailSender
+    {
+        public Task SendEmailAsync(string email, string subject, string htmlMessage)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+```
+**Step 02**: Configure startup.cs
+
+```c#
+services.AddSingleton<IEmailSender, EmailSender>();
+```
+
+## Registration - Dropdown Selection
+
+1. Edit Register.cs InputModel
+```c#
+ public IEnumerable<SelectListItem> CompanyList { get; set; }
+ public IEnumerable<SelectListItem> RoleList { get; set; }
+```
+
+2. Add Fields
+```c#
+ public async Task OnGetAsync(string returnUrl = null)
+ {
+     ReturnUrl = returnUrl;
+
+     // Including dropdown box in register page
+     Input = new InputModel()
+     {
+         CompanyList = _repoCoverType.GetAll().Select(i => new SelectListItem
+         {
+             Text = i.Name,
+             Value = i.Id.ToString()
+         }),
+
+// this role is only visible to ADMIN.
+         RoleList = _roleManager.Roles.Where(u => u.Name != SD.Role_User).Select(x => x.Name).Select(i => new SelectListItem
+         {
+             Text = i,
+             Value = i
+         })
+     };
+}
+```
+
+3. Edit cshtml page (only admin can see this)
+```c#
+@if (User.IsInRole(SD.Role_Admin))
+   {
+       <div class="form-group">
+           <label asp-for="Input.Role"></label>
+           @Html.DropDownListFor(m => m.Input.Role, Model.Input.RoleList, "-Please select a role", new { @class = "form-control" })
+       </div>
+       <div class="form-group">
+           <label asp-for="Input.CompanyId"></label>
+           @Html.DropDownListFor(m => m.Input.CompanyId, Model.Input.CompanyList, "-Please select company", new { @class = "form-control" })
+       </div>
+   }
+```
+
+4. Edit Register.cs file for registration of users based on roles.
+
+**Remove**
+```c#
+// Assigning User to Some Role
+await _userManager.AddToRoleAsync(user, SD.Role_Admin);
+```
+
+**Add**
+```c#
+if(user.Role == null) // if normal user register, it role will be null
+ {
+     await _userManager.AddToRoleAsync(user, SD.Role_User);
+ }
+ else
+ {
+     // Assign the role of company
+     if(user.CompanyId > 0)
+     {
+         await _userManager.AddToRoleAsync(user, SD.Role_Employee);
+     }
+
+     // From one of the selected role
+     await _userManager.AddToRoleAsync(user, user.Role);
+ }
+
+```
+...
+...
+
+```c#
+if(user.Role == null)
+  {
+      await _signInManager.SignInAsync(user, isPersistent: false);
+      return LocalRedirect(returnUrl);
+  }
+  else
+  {
+      // admin is registering a new user, so we need to redirect to admin area
+      return RedirectToAction("Index", "User", new { Area = "Admin" });
+  }
+```
 
 ## Authorization
 
