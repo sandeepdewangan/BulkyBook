@@ -554,6 +554,16 @@ if(user.Role == null)
   }
 ```
 
+## User Class
+1. Create controller - UserController
+2. Create
+```c#
+[HttpGet]
+public IActionResult GetAll()
+```
+
+> SEE Commit - User Class
+
 ## Authorization
 
 1. Add at startup page under Configure method.
