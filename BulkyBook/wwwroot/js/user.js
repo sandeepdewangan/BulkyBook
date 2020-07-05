@@ -15,35 +15,41 @@ function loadDataTable() {
             { "data": "phoneNumber", "width": "15%" },
             { "data": "company.name", "width": "15%" },
             { "data": "role", "width": "15%" },
-            //{
-            //    "data": "id", // RENDER ID FROM MODEL
-            //    "render": function (data) { //render HTML Links
-            //        return `     
-            //                    <div class="text-center">
-            //                        <a href="/Admin/Category/Upsert/${data}" class="btn btn-outline-primary">Edit</a>
-            //                        <a onclick=Delete("/Admin/Category/Delete/${data}") class="btn btn-outline-primary">Delete</a>
-            //                    </div>
-            //                `
-            //    }, "width": "40%"
-            //},
+            {
+                "data": {
+                    id: "id", lockoutEnd : "lockoutEnd"
+                },
+                "render": function (data) { //render HTML Links
+                    var today = new Date().getTime();
+                    var lockout = new Date(data.lockoutEnd).getTime();
+                    if (lockout > today) {
+                        // user is currently locked
+                        return `     
+                                <div class="text-center">
+                                    <a onclick=LockUnlock('${data.id}') class="btn btn-danger">Unlock</a>
+                                </div>
+                            `
+                    } else {
+                        return `     
+                                <div class="text-center">
+                                    <a onclick=LockUnlock('${data.id}') class="btn btn-success">Lock</a>
+                                </div>
+                            `
+                    }
+                }, "width": "25%"
+            },
 
         ]
 
     });
 }
 
-function Delete(url) {
-    swal({
-        title: "Are your sure you want to delete the record?",
-        text: "You will not be able to restore the data!",
-        icon: "warning",
-        buttons: true,
-        dangerMode: true
-    }).then((userResponse) => {
-        if (userResponse) {
+function LockUnlock(id) {
             $.ajax({
-                type: "DELETE",
-                url: url,
+                type: "POST",
+                url: '/Admin/User/LockUnlock',
+                data: JSON.stringify(id),
+                contentType: "application/json",
                 success: function (data) {
                     if (data.success) {
                         toastr.success(data.message);
@@ -53,6 +59,4 @@ function Delete(url) {
                     }
                 }
             });
-        }
-    });
 }

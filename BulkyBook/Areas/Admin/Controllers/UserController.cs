@@ -54,18 +54,40 @@ namespace BulkyBook.Areas.Admin.Controllers
             return Json(new { data = userList });
         }
 
-        //[HttpDelete]
-        //public IActionResult Delete(int id)
-        //{
-        //    var objToDelete = _categoryRepository.GetById(id);
-        //    if(objToDelete == null)
-        //    {
-        //        return Json(new { success = false, message = "Error while deleting a record" });
-        //    }
-        //    _categoryRepository.Remove(id);
-        //    _categoryRepository.Commit();
-        //    return Json(new { success = true, message = "Record Deleted Successfully" });
-        //}
-        #endregion
-    }
+        [HttpPost]
+        public IActionResult LockUnlock([FromBody] string id)
+        {
+            var obj = _dbContext.ApplicationUsers.FirstOrDefault(u => u.Id == id);
+            if(obj == null)
+            {
+                return Json(new { success = false, message = "Error while locking and unlocking" });
+            }
+            if (obj.LockoutEnd != null && obj.LockoutEnd > DateTime.Now)
+            {
+                // user is locked, we need to unlock
+                obj.LockoutEnd = DateTime.Now;
+            }
+            else
+            {
+                obj.LockoutEnd = DateTime.Now.AddYears(1000);
+            }
+            _dbContext.SaveChanges();
+
+            return Json(new { success = true, message = "Success" });
+        }
+
+            //[HttpDelete]
+            //public IActionResult Delete(int id)
+            //{
+            //    var objToDelete = _categoryRepository.GetById(id);
+            //    if(objToDelete == null)
+            //    {
+            //        return Json(new { success = false, message = "Error while deleting a record" });
+            //    }
+            //    _categoryRepository.Remove(id);
+            //    _categoryRepository.Commit();
+            //    return Json(new { success = true, message = "Record Deleted Successfully" });
+            //}
+            #endregion
+        }
 }
