@@ -16,6 +16,7 @@ using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.DataAccess.Repository;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using BulkyBook.Utility;
+using BulkyBook.DataAccess.Initializer;
 
 namespace BulkyBook
 {
@@ -36,6 +37,7 @@ namespace BulkyBook
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddIdentity<IdentityUser, IdentityRole>().AddDefaultTokenProviders().AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddSingleton<IEmailSender, EmailSender>();
+            services.AddScoped<IDbInitializer, DbInitializer>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ICoverTypeRepository, CoverTypeRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
@@ -51,7 +53,7 @@ namespace BulkyBook
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IDbInitializer dbInitializer)
         {
             if (env.IsDevelopment())
             {
@@ -72,6 +74,7 @@ namespace BulkyBook
             app.UseAuthentication();
             app.UseAuthorization();
 
+            dbInitializer.Initialize();
 
 
             app.UseEndpoints(endpoints =>

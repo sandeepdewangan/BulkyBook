@@ -133,22 +133,22 @@ namespace BulkyBook.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    // Role Creation Dynamically
+                    //We do it by Initializer Class
 
-                    if(!await _roleManager.RoleExistsAsync(SD.Role_Admin))
-                    {
-                        await _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin));
-                    }
-                    if (!await _roleManager.RoleExistsAsync(SD.Role_Employee))
-                    {
-                        await _roleManager.CreateAsync(new IdentityRole(SD.Role_Employee));
-                    }
-                    if (!await _roleManager.RoleExistsAsync(SD.Role_User))
-                    {
-                        await _roleManager.CreateAsync(new IdentityRole(SD.Role_User));
-                    }
+                    //if (!await _roleManager.RoleExistsAsync(SD.Role_Admin))
+                    //{
+                    //    await _roleManager.CreateAsync(new IdentityRole(SD.Role_Admin));
+                    //}
+                    //if (!await _roleManager.RoleExistsAsync(SD.Role_Employee))
+                    //{
+                    //    await _roleManager.CreateAsync(new IdentityRole(SD.Role_Employee));
+                    //}
+                    //if (!await _roleManager.RoleExistsAsync(SD.Role_User))
+                    //{
+                    //    await _roleManager.CreateAsync(new IdentityRole(SD.Role_User));
+                    //}
 
-                    if(user.Role == null) // if normal user register, it role will be null
+                    if (user.Role == null) // if normal user register, it role will be null
                     {
                         await _userManager.AddToRoleAsync(user, SD.Role_User);
                     }

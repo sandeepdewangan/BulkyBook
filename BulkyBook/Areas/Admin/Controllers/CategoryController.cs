@@ -8,11 +8,12 @@ using System.ComponentModel;
 using BulkyBook.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.AspNetCore.Authorization;
+using BulkyBook.Utility;
 
 namespace BulkyBook.Areas.Category.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
     public class CategoryController : Controller
     {
         private readonly ICategoryRepository _categoryRepository;
